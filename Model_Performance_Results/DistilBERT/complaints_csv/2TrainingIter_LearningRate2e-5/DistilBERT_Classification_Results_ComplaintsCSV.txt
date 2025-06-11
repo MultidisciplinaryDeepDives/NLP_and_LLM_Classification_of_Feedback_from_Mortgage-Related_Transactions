@@ -1,0 +1,308 @@
+# Load pre-trained DistilBERT model for sequence classification
+model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=5) #, id2label=id2label, label2id=label2id)
+
+# Prepare data collator for padding sequences
+data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+# Define training arguments
+training_args = TrainingArguments(
+    output_dir="./results",
+    learning_rate=2e-5,
+    per_device_train_batch_size=16,
+    per_device_eval_batch_size=16,
+    num_train_epochs=2,
+    weight_decay=0.01,
+    eval_strategy="epoch",
+    save_strategy="epoch",
+    load_best_model_at_end=True
+    # push_to_hub=True
+)
+
+# Define Trainer object for training the model
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=tokenized_train,
+    eval_dataset=tokenized_test,
+    processing_class=tokenizer,
+   # tokenizer=tokenizer,
+    data_collator=data_collator,
+    compute_metrics=compute_metrics
+)
+
+# Train the model
+trainer.train()
+
+# Save the trained model
+trainer.save_model('model')
+
+
+
+
+
+
+# Classification Report
+
+## Performance by Class
+
+| Class | Precision | Recall | F1-Score | Support |
+|-------|-----------|--------|----------|---------|
+| Attempts to collect debt not owed | 0.81 | 0.78 | 0.80 | 14,633 |
+| Communication tactics | 0.86 | 0.83 | 0.85 | 4,249 |
+| Fraud or scam | 0.93 | 0.91 | 0.92 | 2,469 |
+| Incorrect information on your report | 0.94 | 0.95 | 0.94 | 45,861 |
+| Struggling to pay mortgage | 0.95 | 0.94 | 0.94 | 3,475 |
+
+## Overall Performance Summary
+
+| Metric | Value | Support |
+|--------|-------|---------|
+| **Accuracy** | **0.91** | 70,687 |
+| Macro Average | 0.90 | 0.88 | 0.89 | 70,687 |
+| Weighted Average | 0.91 | 0.91 | 0.91 | 70,687 |
+
+## Key Insights
+
+- **Total samples**: 70,687
+- **Overall accuracy**: 91%
+- **Best performing class**: "Struggling to pay mortgage" (F1: 0.94)
+- **Most challenging class**: "Attempts to collect debt not owed" (F1: 0.80)
+- **Largest class**: "Incorrect information on your report" (64.9% of all samples)
+- **Smallest class**: "Fraud or scam" (3.5% of all samples)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+num_train_epochs=1, DistilBERT classification, complaints_csv, 5 class labels:
+
+# Load pre-trained DistilBERT model for sequence classification
+model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=5)
+
+# Prepare data collator for padding sequences
+data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+# Define training arguments
+training_args = TrainingArguments(
+    output_dir="./results",
+    learning_rate=2e-4,
+    per_device_train_batch_size=8,
+    per_device_eval_batch_size=8,
+    num_train_epochs=1,
+    weight_decay=0.01,
+    # evaluation_strategy="epoch",
+    logging_strategy="epoch"
+)
+
+
+
+
+Machine Learning Classification Report
+Consumer Complaint Classification Performance
+Model Performance Summary
+This classification model was trained to categorize consumer complaints into five distinct categories. The overall accuracy achieved was 65%, meaning the model correctly classified about two-thirds of all complaints.
+Performance by Category
+Incorrect information on your report (Primary Success)
+
+Precision: 65% - When the model predicted this category, it was correct 65% of the time
+Recall: 100% - The model successfully identified all complaints in this category
+F1-Score: 79% - Strong overall performance balancing precision and recall
+Support: 45,861 complaints (65% of total dataset)
+
+Attempts to collect debt not owed (Complete Failure)
+
+Precision: 0% - Model never correctly identified complaints in this category
+Recall: 0% - Model failed to catch any of these complaints
+F1-Score: 0% - No meaningful performance
+Support: 14,633 complaints (21% of total dataset)
+
+Communication tactics (Complete Failure)
+
+Precision: 0% - No correct predictions for this category
+Recall: 0% - Failed to identify any complaints of this type
+F1-Score: 0% - No performance detected
+Support: 4,249 complaints (6% of total dataset)
+
+Struggling to pay mortgage (Complete Failure)
+
+Precision: 0% - Model never correctly predicted this category
+Recall: 0% - Missed all complaints in this category
+F1-Score: 0% - Complete classification failure
+Support: 3,475 complaints (5% of total dataset)
+
+Fraud or scam (Complete Failure)
+
+Precision: 0% - No successful predictions
+Recall: 0% - Failed to detect any fraud/scam complaints
+F1-Score: 0% - No measurable performance
+Support: 2,469 complaints (3% of total dataset)
+
+Overall Model Assessment
+Macro Average Performance
+
+Precision: 13% - Average performance across all categories (heavily impacted by zero scores)
+Recall: 20% - Average ability to find complaints in each category
+F1-Score: 16% - Poor overall balanced performance
+
+Weighted Average Performance
+
+Precision: 42% - Performance weighted by category size (better due to large successful category)
+Recall: 65% - Matches overall accuracy
+F1-Score: 51% - Moderate performance when accounting for category imbalance
+
+Key Insights and Recommendations
+Critical Issue: This model suffers from severe class imbalance problems. It has essentially become a binary classifier that only identifies "Incorrect information on your report" complaints while completely failing on the other four categories.
+Root Cause: The dataset is heavily skewed, with 65% of complaints falling into the "Incorrect information on your report" category. The model has learned to simply predict this majority class for nearly all inputs.
+Immediate Actions Needed:
+
+Data Rebalancing: Implement techniques like oversampling minority classes or undersampling the majority class
+Cost-Sensitive Learning: Adjust the model to penalize misclassification of minority classes more heavily
+Feature Engineering: Develop more distinctive features that can differentiate between categories
+Model Architecture: Consider ensemble methods or algorithms better suited for imbalanced datasets
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+num_train_epochs=5, DistilBERT classification, complaints_csv, 5 class labels:
+
+# Load pre-trained DistilBERT model for sequence classification
+model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=5)
+
+# Prepare data collator for padding sequences
+data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+# Define training arguments
+training_args = TrainingArguments(
+    output_dir="./results",
+    learning_rate=2e-4,
+    per_device_train_batch_size=8,
+    per_device_eval_batch_size=8,
+    num_train_epochs=1,
+    weight_decay=0.01,
+    # evaluation_strategy="epoch",
+    logging_strategy="epoch"
+)
+
+
+
+
+
+# Load pre-trained DistilBERT model for sequence classification
+model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=25)
+
+# Prepare data collator for padding sequences
+data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+# Define training arguments
+training_args = TrainingArguments(
+    output_dir="./results",
+    learning_rate=2e-4,
+    per_device_train_batch_size=8,
+    per_device_eval_batch_size=8,
+    num_train_epochs=1,
+    weight_decay=0.01,
+    # evaluation_strategy="epoch",
+    logging_strategy="epoch"
+)
+
+
+
+
+
+
+
+
+
+Machine Learning Classification Performance Report
+Dataset Overview
+
+Total Samples: 70,687
+Number of Classes: 5
+Overall Accuracy: 65.0%
+
+Class Distribution and Performance
+Individual Class Performance
+Incorrect information on your report (Dominant Class)
+
+Sample Count: 45,861 (64.9% of dataset)
+Precision: 65%
+Recall: 100%
+F1-Score: 79%
+Status: ✅ Well-performing class
+
+Attempts to collect debt not owed
+
+Sample Count: 14,633 (20.7% of dataset)
+Precision: 0%
+Recall: 0%
+F1-Score: 0%
+Status: ❌ No successful predictions
+
+Communication tactics
+
+Sample Count: 4,249 (6.0% of dataset)
+Precision: 0%
+Recall: 0%
+F1-Score: 0%
+Status: ❌ No successful predictions
+
+Struggling to pay mortgage
+
+Sample Count: 3,475 (4.9% of dataset)
+Precision: 0%
+Recall: 0%
+F1-Score: 0%
+Status: ❌ No successful predictions
+
+Fraud or scam
+
+Sample Count: 2,469 (3.5% of dataset)
+Precision: 0%
+Recall: 0%
+F1-Score: 0%
+Status: ❌ No successful predictions
+
+Summary Statistics
+Overall Performance Metrics
+
+Accuracy: 65.0%
+Macro Average: Precision 13%, Recall 20%, F1-Score 16%
+Weighted Average: Precision 42%, Recall 65%, F1-Score 51%
+
+Key Findings
+Model Behavior Analysis
+The model exhibits classic symptoms of severe class imbalance. It appears to be predicting only the majority class ("Incorrect information on your report") while completely failing to identify the four minority classes.
+Critical Issues Identified
+
+Complete Minority Class Failure: Four out of five classes have zero precision, recall, and F1-scores
+Extreme Class Imbalance: The dominant class represents nearly 65% of all samples
+Overfitting to Majority Class: The model has learned to always predict the most common class
+
+Recommendations for Improvement
+
+Address Class Imbalance: Implement techniques such as SMOTE, class weighting, or stratified sampling
+Evaluation Metrics: Consider using balanced accuracy, Cohen's kappa, or AUC-ROC for imbalanced datasets
+Data Collection: Gather more samples for underrepresented classes
+Model Architecture: Experiment with cost-sensitive learning algorithms
+Feature Engineering: Review features to ensure they can distinguish between minority classes
+
+Business Impact
+While the overall accuracy of 65% might seem reasonable, the model is essentially useless for identifying four of the five problem categories, which could lead to significant operational issues in real-world deployment.
